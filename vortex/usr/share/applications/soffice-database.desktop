@@ -1,0 +1,23 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Terminal=false
+Icon=soffice
+Type=Application
+InitialPreference=2
+Categories=Application;Office;X-Red-Hat-Base;
+Exec=soffice -base %U
+MimeType=application/vnd.oasis.opendocument.database
+Name=OpenOffice.org Database
+Comment=Manage databases, create queries and reports to track and manage your information by using Base.
+Comment[en]=Manage databases, create queries and reports to track and manage your information by using Base.
+Comment[de]=Verwalten von Datenbanken, Erstellen von Abfragen und Berichten - Base macht's möglich.
+Comment[es]=Administrar bases de datos, crear consultas e informes para controlar y editar información con Base.
+Comment[fr]=Base - Gestion de bases de données, création de requêtes et rapports
+Comment[it]=Usando Base, potete gestire i database e creare interrogazioni e rapporti per controllare e organizzare le vostre informazioni.
+Comment[ja]=Base を使用することで、データベースを管理し、クエリーとレポートを作成して、情報を追跡および管理します。
+Comment[ko]=Base를 사용하여 데이터베이스를 관리하고, 추적할 쿼리와 보고서를 만들며, 정보를 관리합니다.
+Comment[pt_BR]=Gerenciar bancos de dados, criar consultas e relatórios para rastrear e gerenciar suas informações por meio do Base.
+Comment[sv]=Hantera databaser, skapa sökningar och rapporter för att spåra och hantera information med hjälp av Base.
+Comment[zh_CN]=使用 Base 管理数据库并创建查询和报表以对信息进行跟踪和管理。
+Comment[zh_TW]=使用 Base 來管理資料庫、建立查詢與報告，以追蹤及管理您的資訊。

@@ -1,0 +1,14 @@
+[Desktop Entry]
+Comment=
+Encoding=UTF-8
+Exec='/usr/games/doom'
+GenericName=
+Icon=clanbomber
+Name=Doom II
+Path=
+StartupNotify=false
+Terminal=0
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

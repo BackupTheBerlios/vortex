@@ -1,0 +1,24 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Terminal=false
+Icon=abiword
+Type=Application
+InitialPreference=2
+Categories=Application;Office;X-Generations-Base;
+Exec=soffice -writer %U
+MimeType=application/vnd.oasis.opendocument.text;application/vnd.oasis.opendocument.text-template;application/vnd.oasis.opendocument.text-web;application/vnd.oasis.opendocument.text-master;application/vnd.sun.xml.writer;application/vnd.sun.xml.writer.template;application/vnd.sun.xml.writer.global;application/vnd.stardivision.writer;application/msword;application/vnd.ms-word;application/x-doc;text/rtf
+Name=OpenOffice.org
+GenericName=Writer
+Comment=Create and edit text and graphics in letters, reports, documents and Web pages by using Writer.
+Comment[en]=Create and edit text and graphics in letters, reports, documents and Web pages by using Writer.
+Comment[de]=Erstellen und bearbeiten von Text und Grafiken in Briefen, Reports, Dokumenten und Web-Seiten - Writer macht's möglich.
+Comment[es]=Crear y editar texto y gráficos de cartas, informes, documentos y páginas Web con Writer.
+Comment[fr]=Writer - Création et édition de textes et d'images pour courrier, rapports, documents et pages Web
+Comment[it]=Usando Writer, potete creare e modificare il testo e le immagini di lettere, rapporti, documenti e pagine Web.
+Comment[ja]=Writer を使用して、レター、レポート、ドキュメントおよび Web ページを作成して、編集します。
+Comment[ko]=Writer를 사용하여 편지, 보고서, 문서 및 웹 페이지에서 텍스트와 그림을 만들고 편집할 수 있습니다.
+Comment[pt_BR]=Criar e editar texto e figuras em cartas, relatórios, documentos e páginas da Web por meio do Writer.
+Comment[sv]=Skapa och redigera text och grafik i brev, rapporter, dokument och webbsidor med hjälp av Writer.
+Comment[zh_CN]=使用 Writer 创建并编辑信函、报表、文档和网页中的文本和图形。
+Comment[zh_TW]=使用 Writer 可以在信件、報告、文件和網頁中建立與編輯文字和圖案。

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=audacity
+Comment=Digital Audio Editor
+Exec=audacity
+MimeType=audio/x-aiff;audio/x-wav
+Icon=/usr/share/pixmaps/audacity.xpm
+Terminal=0
+Type=Application

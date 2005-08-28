@@ -1,0 +1,24 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Terminal=false
+Icon=staroffice
+Type=Application
+InitialPreference=2
+Categories=Application;Office;X-Generations-Base;
+Exec=soffice -impress %U
+MimeType=application/vnd.oasis.opendocument.presentation;application/vnd.oasis.opendocument.presentation-template;application/vnd.sun.xml.impress;application/vnd.sun.xml.impress.template;application/vnd.stardivision.impress;application/mspowerpoint
+Name=OpenOffice.org
+GenericName=Presentations
+Comment=Create and edit presentations for slideshows, meeting and Web pages by using Impress.
+Comment[en]=Create and edit presentations for slideshows, meeting and Web pages by using Impress.
+Comment[de]=Erstellen und bearbeiten von Präsentationen für Dia-Vorführungen, Meetings und Web-Auftritte - Impress macht's möglich.
+Comment[es]=Crear y editar presentaciones para charlas o reuniones y páginas Web con Impress.
+Comment[fr]=Impress - Création et édition de présentations pour diaporamas, réunions et pages Web
+Comment[it]=Impress vi permette di creare e modificare presentazioni, diapositive e pagine Web.
+Comment[ja]=Impress を使用して、スライドショー、ミーティングおよび Web ページ用のプレゼンテーションを作成して編集します。
+Comment[ko]=Impress를 사용하여 슬라이드 쇼, 회의 및 웹 페이지에 대한 프레젠테이션을 만들고 편집합니다.
+Comment[pt_BR]=Criar e editar apresentações para slides, reuniões e páginas da Web por meio do Impress.
+Comment[sv]=Skapa och redigera presentationer för bildskärmspresentationer, möten och webbsidor med hjälp av Impress.
+Comment[zh_CN]=使用 Impress 创建并编辑幻灯片、会议和网页中使用的演示文稿。
+Comment[zh_TW]=使用 Impress 可建立與編輯用於投影片、會議和網頁的簡報。

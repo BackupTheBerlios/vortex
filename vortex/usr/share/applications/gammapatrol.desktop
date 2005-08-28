@@ -1,0 +1,13 @@
+[Desktop Entry]
+Comment=
+Exec=/usr/games/gammapatrol
+GenericName=gammapatrol
+Icon=/usr/share/pixmaps/gammapatrol.png
+Name=preview
+Path=
+StartupNotify=false
+Terminal=0
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

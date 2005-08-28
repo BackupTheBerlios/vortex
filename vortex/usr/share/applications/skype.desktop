@@ -1,0 +1,15 @@
+[Desktop Entry]
+Categories=Application;Network;
+Comment=Skype Internet telephony
+Encoding=UTF-8
+Exec=skype
+GenericName=Skype
+Icon=/usr/share/pixmaps/skype.png
+Name=Skype Internet telephony
+Path=
+StartupNotify=true
+Terminal=0
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

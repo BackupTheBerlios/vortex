@@ -1,0 +1,23 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Terminal=false
+Icon=soffice
+Type=Application
+InitialPreference=2
+Categories=Application;Office;X-Red-Hat-Base;
+Exec=soffice -calc %U
+MimeType=application/vnd.oasis.opendocument.spreadsheet;application/vnd.oasis.opendocument.spreadsheet-template;application/vnd.sun.xml.calc;application/vnd.sun.xml.calc.template;application/vnd.stardivision.calc;application/vnd.stardivision.chart;application/msexcel;application/vnd.ms-excel
+Name=OpenOffice.org Spreadsheet
+Comment=Perform calculation, analyze information and manage lists in spreadsheets by using Calc.
+Comment[en]=Perform calculation, analyze information and manage lists in spreadsheets by using Calc.
+Comment[de]=Berechnungen ausführen, Informationen analysieren und Listen in Tabellen verwalten - Calc macht's möglich.
+Comment[es]=Realizar cálculos, analizar información y editar listas en hojas de cálculo con Calc.
+Comment[fr]=Calc - Calculs, analyses et gestion de listes dans des feuilles de calcul
+Comment[it]=Calc può essere usato per eseguire calcoli, analizzare informazioni e gestire elenchi in un foglio elettronico.
+Comment[ja]=Calc を使用して、表計算ドキュメントで計算を実行し、情報を分析し、リストを管理します。
+Comment[ko]=Calc를 사용하여 스프레드시트에서 계산, 정보 분석 및 목록 관리를 수행합니다.
+Comment[pt_BR]=Fazer cálculos, analisar informações e gerenciar listas em planilhas por meio do Calc.
+Comment[sv]=Utföra beräkningar, analysera information och hantera listor i tabelldokument med hjälp av Calc.
+Comment[zh_CN]=使用 Calc 进行计算、分析信息以及管理电子表格中的列表。
+Comment[zh_TW]=使用 Calc 可在試算表中執行計算、分析資訊與管理清單。

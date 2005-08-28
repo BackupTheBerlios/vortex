@@ -1,0 +1,24 @@
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Terminal=false
+Icon=xpaint
+Type=Application
+InitialPreference=2
+Categories=Application;Office;X-Generations-Base;
+Exec=soffice -draw %U
+MimeType=application/vnd.oasis.opendocument.graphics;application/vnd.oasis.opendocument.graphics-template;application/vnd.sun.xml.draw;application/vnd.sun.xml.draw.template;application/vnd.stardivision.draw
+Name=OpenOffice.org
+GenericName=Drawing
+Comment=Create and edit drawings, flow charts, and logos by using Draw.
+Comment[en]=Create and edit drawings, flow charts, and logos by using Draw.
+Comment[de]=Zeichnungen erstellen und bearbeiten, Flussdiagramme entwerfen und Logos kreieren - Draw macht's möglich.
+Comment[es]=Crear y editar dibujos, diagramas de flujo y logotipos con Draw.
+Comment[fr]=Draw - Création et édition de dessins, d'organigrammes et de logos
+Comment[it]=Con Draw potete creare e modificate disegni, diagrammi di flusso e logo.
+Comment[ja]=Draw を使用して、図形描画、フローチャート、およびロゴを作成および編集します。
+Comment[ko]=그리기를 사용하여 그리기, 순서도 및 로고를 만들고 편집합니다.
+Comment[pt_BR]=Criar e ditar desenhos, fluxogramas e logotipos por meio do Draw.
+Comment[sv]=Skapa och redigera teckningar, flödesdiagram och logotyper med hjälp av Draw.
+Comment[zh_CN]=使用 Draw 创建并编辑图形、流程图和徽标。
+Comment[zh_TW]=使用 Draw 可建立與編輯繪圖、流程圖以及標誌。
