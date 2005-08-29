@@ -1,0 +1,28 @@
+#!/bin/sh
+# $Id: isapnp,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/isapnp: configure Plug and Play boards
+#
+# 1998-11-21 Generations Linux <info@softcraft.org>
+##
+###
+
+test -x /sbin/isapnp || exit 0
+
+case "$1" in
+    start)
+	if [ -r /etc/isapnp.conf ]; then
+	    /sbin/isapnp /etc/isapnp.conf
+	fi
+	;;
+	
+    stop|force-reload|restart)
+	;;
+
+    *)
+	echo "Usage: $0 {start|stop|restart|force-reload}"
+	exit 1
+esac
+
+exit 0

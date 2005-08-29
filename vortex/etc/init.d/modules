@@ -1,0 +1,41 @@
+#!/bin/sh
+# $Id: modules,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# modules - This file is executed by init scripts to explicitly
+#           load kernel modules before finishing up system boot.
+#
+# 2005-01-09 Generations Linux <info@softcraft.org>
+##
+###
+
+# Source function library.
+. /etc/init.d/functions
+
+# Configure Plug and Play boards.
+if ! grep -iq nopnp /proc/cmdline >/dev/null 2>&1 ; then
+  [ -x /sbin/isapnp -a -f /etc/isapnp.conf -a ! -f /proc/isapnp ] && \
+  action $"Setting up ISA PNP devices: " /sbin/isapnp /etc/isapnp.conf
+fi
+
+# Activate SCSI emulation when specified.
+if grep -q "ide-scsi" /proc/cmdline ; then
+  modprobe ide-cd >/dev/null 2>&1
+  modprobe ide-scsi >/dev/null 2>&1
+fi
+
+# Activate sound system.
+[ -f /etc/sysconfig/sound ] && . /etc/sysconfig/sound
+[ -n "$DRIVER" -a "$DRIVER" != "unknown" ] && modprobe $DRIVER
+[ -n "$INIT" ] && $INIT 2> /dev/null
+
+# Start hotpluggable subsystems (coldplugging).
+[ -x /etc/init.d/hotplug ] && /etc/init.d/hotplug start
+
+# Additional modules...
+[ -f /etc/sysconfig/modules ] && \
+for name in `grep -v ^# /etc/sysconfig/modules`; do
+  action $"Loading module $name: " modprobe $name 2> /dev/null
+done
+
+# </modules>

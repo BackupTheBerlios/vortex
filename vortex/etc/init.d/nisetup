@@ -1,0 +1,31 @@
+#!/bin/sh
+# $Id: nisetup,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# nisetup - networking information services (NIS) setup.
+#
+# 2002-05-08 Generations Linux <info@softcraft.org>
+##
+###
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+NAMECFG=/etc/named.conf
+
+YPCONFIG=/etc/yp.conf
+YPPASSWD="rpc.yppasswdd -e chsh -e chfn -s /etc/shadow"
+YPSERVER=
+
+##
+# named(8) hangs with NIS configured with $YPCONFIG
+#
+[ -r /usr$YPCONFIG ] && cp /usr$YPCONFIG $YPCONFIG
+[ -r $NAMECFG ] && named
+[ -z $YPSERVER ] || echo "ypserver $YPSERVER" >> $YPCONFIG
+
+##
+# hosts providing NIS maps run the appropriate (YP) daemons
+#
+if [ -d /var/yp/`domainname` ]; then
+  ypserv
+  $YPPASSWD
+fi

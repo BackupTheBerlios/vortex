@@ -1,0 +1,54 @@
+#!/bin/sh
+# $Id: apmd,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# Start or stop the Advanced Power Management daemon.
+#
+# Written by Dirk Eddelbuettel <edd@debian.org>
+# Greatly modified by Avery Pennarun <apenwarr@debian.org>
+#
+# 2003-12-28 Generations Linux <info@softcraft.org>
+##
+###
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+APMD_BIN="/usr/sbin/apmd"
+
+[ -s "${APMD_BIN}" ] || exit 0
+
+[ -f /etc/sysconfig/apmd ] && . /etc/sysconfig/apmd
+
+case "${1}" in
+("start")
+    echo -n "Starting advanced power management daemon: "
+    ${APMD_BIN} &
+    case $? in
+    (0)
+	echo "apmd."
+	exit 0
+	;;
+    (1)
+	echo "apmd (already running)."
+	exit 0
+	;;
+    (*)
+	echo "(failed)."
+	exit 1
+	;;
+    esac
+    ;;
+("stop")
+    echo -n "Stopping advanced power management daemon: "
+    killall apmd
+    echo "apmd."
+    exit 0
+    ;;
+("restart" | "force-reload")
+    "${0}" stop
+    "${0}" start
+    ;;
+(*)
+    echo "Usage: /etc/init.d/apmd {start|stop|restart|force-reload}" >&2
+    exit 3
+    ;;
+esac

@@ -1,0 +1,29 @@
+#! /bin/sh
+# $Id: single,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# single     This file is executed by init when it goes into runlevel
+#            1, which is the administrative state. It kills all
+#            deamons and then puts the system into single user mode.
+#            Note that the file systems are kept mounted.
+#
+# 1994/01/18 Miquel van Smoorenburg <miquels@drinkel.nl.mugnet.org>
+# 1997/11/06 Generations Linux <info@softcraft.org>
+##
+###
+
+# Set the path.
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+# Kill all processes.
+echo "Sending all processes the TERM signal.."
+killall5 -15
+sleep 5
+
+echo "Sending all processes the KILL signal.."
+killall5 -9
+
+# Now go to the single user level
+echo "Telling INIT to go to single user mode."
+exec init -t1 S
+

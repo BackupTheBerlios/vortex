@@ -1,0 +1,49 @@
+#!/bin/sh
+# $Id: ivtv,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/ivtv {start,stop,restart,status}
+#
+# 2004-11-14 Generations Linux <info@softcraft.org>
+##
+###
+
+# Source function library.
+. /etc/init.d/functions
+
+# See how we were called.
+case "$1" in
+  start)
+	echo -n "Loading IVTV... "
+
+	modprobe tda9887 
+#	modprobe ivtv ivtv_std=2 ivtv_debug=1 tuner=50 tda9887=1
+
+	modprobe ivtv
+	modprobe lirc_i2c
+
+#	ivtvctl -f width=720,height=480
+##	ivtvctl -p 4 -v input=3,output=1
+#	ivtvctl -p 4
+#	ivtvctl -u 0x3000
+	;;
+  stop)
+	echo -n "Unloading... "
+	/etc/init.d/lirc stop
+	modprobe -r lirc_i2c ivtv
+	;;
+  status)
+	lsmod | grep ivtv 
+	lsmod | grep lirc_i2c 
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: lirc {start|stop|status|restart}"
+	exit 1
+esac
+
+exit 0
+

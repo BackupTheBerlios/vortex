@@ -1,0 +1,42 @@
+#!/bin/sh
+# $Id: hotplug,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# hotplug This scripts starts hotpluggable subsystems.
+#
+# chkconfig: 2345 01 99
+# description:	Starts and stops each hotpluggable subsystem. \
+#		On startup, may simulate hotplug events for devices \
+#		that were present at boot time, before filesystems \
+#		(or other resources) used by hotplug agents were available.
+#
+# _Id: hotplug,v 1.3 2002/12/03 02:01:48 dbrownell Exp $
+# 2004-07-17 Generations Linux <info@softcraft.org>
+##
+###
+[ -f /etc/sysconfig/boot ] && . /etc/sysconfig/boot
+[ -n "$HOTPLUG" ] || exit 0
+
+# source function library
+[ -f /etc/init.d/functions ] && . /etc/init.d/functions
+
+case "$1" in
+    start|stop|restart|status)
+	for SUB in $HOTPLUG
+	do
+	  [ -x /etc/hotplug/$SUB.rc ] && /etc/hotplug/$SUB.rc $1
+	done
+
+	if [ "$1" == "start" ]; then
+	  touch /var/lock/subsys/hotplug
+        elif [ "$1" == "stop" ]; then
+          rm -f /var/lock/subsys/hotplug
+	fi
+        ;;
+    *)
+	echo $"Usage: $0 {start|stop|restart|status}"
+	exit 3
+	;;
+esac
+
+# </hotplug>

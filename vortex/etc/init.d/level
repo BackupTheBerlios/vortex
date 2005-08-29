@@ -1,0 +1,97 @@
+#!/bin/sh
+# $Id: level,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/level - start/stop services when the runlevel changes.
+#
+# 1999.11.07 Miquel van Smoorenburg <miquels@cistron.nl>
+# 2004.10.28 Generations Linux <info@softcraft.org>
+##
+###
+
+#debug=echo
+[ -f /etc/sysconfig/boot ] && . /etc/sysconfig/boot
+
+##
+# startup($program,$args) - start script or program.
+#
+startup() {
+  case "$1" in
+	*.sh)
+		$debug sh "$@"
+		;;
+	*)
+		$debug "$@"
+		;;
+  esac
+}
+
+# Ignore CTRL-C only in this shell, so we can interrupt subprocesses.
+trap ":" INT QUIT TSTP
+
+# Set onlcr to avoid staircase effect.
+stty onlcr 0>&1
+
+# Now find out what the current and what the previous runlevel are.
+runlevel=$RUNLEVEL
+
+# Get first argument. Set new runlevel to this argument.
+[ "$1" != "" ] && runlevel=$1
+
+if [ "$runlevel" = "" ]; then
+  echo "Usage: $0 <runlevel>" >&2
+  exit 1
+fi
+
+previous=$PREVLEVEL
+[ "$previous" = "" ] && previous=N
+export runlevel previous
+
+##
+# Ready for action.. special handling for shutdown.
+if [ $runlevel -eq 0 -o $runlevel -eq 6 ]; then
+  [ -e /var/generations/shutdown.scr ] && cat /var/generations/shutdown.scr
+
+  if [ -z "$INSTALLED" ]; then
+    [ $runlevel -eq 0 ] && mode="halt" || mode="reboot"
+    exec /etc/init.d/shutdown $mode
+  fi
+fi
+
+# See if there an rc directory for this new runlevel.
+if [ -d /etc/rc$runlevel.d ]; then
+  if [ $previous != N ]; then
+    for i in /etc/rc$runlevel.d/K[0-9][0-9]*
+    do
+      [ ! -f $i ] && continue
+      startup $i stop
+    done
+  fi
+
+  # Run the S(tart) scripts for this runlevel.
+  for i in /etc/rc$runlevel.d/S*
+  do
+    [ ! -f $i ] && continue
+
+    if [ $previous != N ]; then
+      #
+      # Find start script in previous runlevel and stop script in this
+      # runlevel. If there is a start script in the previous level and
+      # _no_ stop script in this level, we don't have to re-start the
+      # service.
+      #
+      suffix=${i#/etc/rc$runlevel.d/S[0-9][0-9]}
+      stop=/etc/rc$runlevel.d/K[0-9][0-9]$suffix
+      previous_start=/etc/rc$previous.d/S[0-9][0-9]$suffix
+      [ -f $previous_start ] && [ ! -f $stop ] && continue
+    fi
+    if [ $runlevel -ne 0 -a $runlevel -ne 6 ]; then
+      startup $i start
+    else
+      startup $i stop
+    fi
+  done
+fi
+
+exit 0
+# </level>

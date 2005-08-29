@@ -1,0 +1,68 @@
+#!/bin/sh
+# $Id: postgres,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# postgres -- start/stop postgres server(s)
+#
+# 2004-11-21 Generations Linux <info@softcraft.org>
+##
+###
+
+POSTGRES=${POSTGRES:-/opt/postgres}
+[ -d $POSTGRES/data ] || exit 1
+
+PATH=$POSTGRES/bin:$PATH
+LD_LIBRARY_PATH=$POSTGRES/lib:$LD_LIBRARY_PATH
+PGDATA=${PGDATA:-$POSTGRES/data}
+PGPORT=${PGPORT:-5432}
+
+PIDFILE=${PIDFILE:-$PGDATA/postmaster.pid}
+PID=`ps -ef | grep postmaster | grep -v grep | awk '{print $2}'`
+[ -e $PIDFILE ] && kill -0 $PID 2>/dev/null && RUNNING=yes
+. /etc/init.d/functions
+
+##
+# see how we were called
+case "$1" in
+  start)
+	if [ -n "$RUNNING" ]; then
+          status postmaster
+        else
+          echo -n "Starting postgres server..."
+	  rm -f $POSTGRES/data/postmaster.pid
+          su - postgres -c "postmaster -i -D $PGDATA -S -p $PGPORT"
+          if [ "$?" -eq 0 ]; then
+            echo_success
+          else
+            echo_failure
+          fi
+          echo
+        fi
+	;;
+  stop)
+	if [ -z "$RUNNING" ]; then
+          status postmaster
+        else
+          echo -n "Shutting down postgres server..."
+          killproc postmaster
+          if [ "$?" -eq 0 ]; then
+            echo_success
+          else
+            echo_failure
+          fi
+          echo
+        fi
+	;;
+  restart)
+    $0 stop
+    $0 start
+    ;;
+  status)
+        status postmaster
+	;;
+  *)
+	echo "Usage: /etc/init.d/postgres {start|stop|restart|status}"
+	exit 1
+esac
+
+exit 0

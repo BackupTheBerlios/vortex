@@ -1,0 +1,51 @@
+#! /bin/sh
+# $Id: firewall,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/firewall - IP Firewall rules.
+#
+#   Set FIREWALL in /etc/sysconfig/network as needed, before
+#   kernel,v 2.4 (iptables) it needs to be the <network>/<mask>.
+#   For example for all the nodes in class C network 192.168.1.0
+#
+#      FIREWALL="192.168.1.0/24"
+#
+# 2004-07-31 Generations Linux <info@softcraft.org>
+##
+###
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+if [ -n "$FIREWALL" ]; then
+  RELEASE=`uname -r`
+  MAJOR=`echo $RELEASE | awk -F. '{print $1}'`
+  MINOR=`echo $RELEASE | awk -F. '{print $2}'`
+
+  if [ $MAJOR -eq 2 -a $MINOR -gt 2 ]; then
+    modprobe iptable_nat
+
+    # In the NAT table (-t nat), Append a rule (-A) after routing
+    # (POSTROUTING) for all packets going out ppp0 (-o ppp0) which
+    # says to MASQUERADE the connection (-j MASQUERADE).
+    iptables -t nat -A POSTROUTING -o ppp0 -j MASQUERADE
+
+    # Turn on IP forwarding
+    echo 1 > /proc/sys/net/ipv4/ip_forward
+  else
+    modprobe ip_masq_ftp
+    modprobe ip_masq_irc
+    modprobe ip_masq_quake
+    modprobe ip_masq_raudio
+    modprobe ip_masq_vdolive
+    modprobe ip_masq_cuseeme
+
+    if [ $MAJOR -eq 2 -a $MINOR -gt 0 ]; then
+      ipchains -P forward DENY
+      ipchains -A forward -s $FIREWALL -j MASQ
+      echo 1 > /proc/sys/net/ipv4/ip_forward
+    else
+      ipfwadm -F -p deny
+      ipfwadm -F -a m -S $FIREWALL -D 0.0.0.0/0
+    fi
+  fi
+fi
+#

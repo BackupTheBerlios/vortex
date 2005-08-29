@@ -1,0 +1,44 @@
+#!/bin/sh
+# $Id: daemons,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# daemons - Start/Stop standard daemons.
+#
+# 2004-11-07 Generations Linux <info@softcraft.org>
+##
+###
+[ -f /etc/init.d/functions ] && . /etc/init.d/functions
+[ -f /etc/sysconfig/syslog ] && . /etc/sysconfig/syslog
+
+SERVICES="atd cron klogd syslogd"
+
+# See how we were called.
+case "$1" in
+  start)
+        for DAEMON in $SERVICES; do
+	  [ "$DAEMON" == "cron" ] && DAEMON=crond
+          killproc $DAEMON > /dev/null 2>&1
+        done
+        echo -n "Starting standard daemons..."
+        syslogd ${SYSLOGD_OPTIONS} && echo -n " syslogd"
+        klogd ${KLOGD_OPTIONS} && echo -n " klogd"
+        cron && echo -n " cron"
+        atd && echo -n " atd"
+        echo_success 2>/dev/null
+        echo
+        ;;
+  stop)
+        echo -n "Shutting down standard daemons..."
+        for DAEMON in $SERVICES; do
+          killproc $DAEMON > /dev/null 2>&1
+          echo -n " $DAEMON"
+        done
+        echo_success 2>/dev/null
+        echo
+        ;;
+  *)
+        echo "Usage: /etc/init.d/daemons {start|stop}"
+        exit 1
+esac
+
+exit 0

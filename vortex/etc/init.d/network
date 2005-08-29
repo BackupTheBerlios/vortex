@@ -1,0 +1,71 @@
+#!/bin/sh
+# $Id: network,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/network - Start/stop all the basic networking services.
+#
+# 2005-03-02 Generations Linux <info@softcraft.org>
+##
+###
+
+[ -f /etc/init.d/functions ] && . /etc/init.d/functions
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+# See how we were called.
+case "$1" in
+  start)
+        ifconfig lo 127.0.0.1 up netmask 255.255.255.0
+
+        for CONFIG in /etc/sysconfig/interface/*; do
+          /etc/init.d/interface `basename $CONFIG` up
+        done
+
+	echo -n "Starting network daemons..."
+        xinetd && echo -n " xinetd"
+        rpc.portmap && echo -n " portmap"
+        echo_success 2>/dev/null
+        echo
+
+        ##
+	# See if we want to start network services: automount, ldap, nis...
+        # First see if we have any routes set up to the rest of the world.
+	netstat -rn | egrep -s -v -q "Kernel routing|Destination"
+
+	if [ $? = 0 -a -f /etc/sysconfig/services ]; then
+	  for service in `grep -v ^# /etc/sysconfig/services`; do
+	    [ -x /etc/init.d/$service ] && /etc/init.d/$service start
+	  done
+          [ -n "$NTPSERVER" -a -x /usr/bin/ntpdate ] && /usr/bin/ntpdate -b -s $NTPSERVER
+	fi
+	echo
+	;;
+  stop)
+	netstat -rn | egrep -s -v -q "Kernel routing|Destination"
+
+	if [ $? = 0 -a -f /etc/sysconfig/services ]; then
+	  for service in `grep -v ^# /etc/sysconfig/services`; do
+	    [ -x /etc/init.d/$service ] && /etc/init.d/$service stop
+	  done
+	fi
+
+	echo -n "Shutting down network daemons..."
+        killall rpc.portmap && echo -n " portmap"
+        killall xinetd && echo -n " xinetd"
+        echo_success 2>/dev/null
+        echo
+
+	for CONFIG in /etc/sysconfig/interface/*; do
+	  DEVICE=`basename $CONFIG`
+	  if grep -q  $DEVICE /proc/net/dev; then
+	    /etc/init.d/interface $DEVICE down
+	  fi
+	done
+
+        ifconfig lo down
+	;;
+  *)
+	echo "Usage: /etc/init.d/network {start|stop}"
+	exit 1
+esac
+
+# </network>

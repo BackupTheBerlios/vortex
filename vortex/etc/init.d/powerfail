@@ -1,0 +1,50 @@
+#!/bin/sh
+# $Id: powerfail,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# powerfail  This script is run when the UPS tells the system
+#            the power has gone. Tell everybody, ans start the 
+#            shutdown based on the failure type.                
+#
+#            This script is also being run when the power comes
+#            up again (if it does in time!)
+#
+# 1995/07/07 Tom Webster <webster@kaiwan.com>
+# 1998/01/04 Generations Linux <info@softcraft.org>
+##
+###
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+# Set location of upsstatus file
+statpath="/var/run/upsstatus"
+
+# Set location of file containing PID of running shutdowns
+spidpath="/var/run/shutdownpid"
+
+# See what happened.
+case "$1" in
+  start)
+    # Called with a powerfail event, check to see if a shutdown is running,
+    # and stop it if it is.
+    if [ -f $spidpath ]; then
+      # Shutdown is running, kill it to process the new event
+      shutdown -c "Halting running shutdown to process power event...."
+    fi
+
+    # Get power problem and act on it. Needs further testing.
+    if [ -r $statpath ]; then
+      stats=`head -1 $statpath`
+    fi
+    shutdown -h +10 "THE POWER IS DOWN! SHUTTING DOWN SYSTEM! PLEASE LOG OFF NOW!" < /dev/console &
+    ;;
+  stop)
+    # Ok, power is good again. Say so on the console.
+    shutdown -c "THE POWER IS BACK"
+    ;;
+  *)
+    echo "usage: /etc/init.d/powerfail {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0

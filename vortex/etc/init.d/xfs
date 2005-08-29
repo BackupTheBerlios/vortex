@@ -1,0 +1,51 @@
+#!/bin/sh
+# $Id: xfs,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/xfs start/stop/restart/status the X font server
+#
+# 2004-11-08 Generations Linux <info@softcraft.org>
+##
+###
+
+test -x /usr/bin/X11/xfs || exit 1
+. /etc/init.d/functions
+
+PATH=/bin:/usr/bin:/usr/bin/X11:/sbin:/usr/sbin
+PIDFILE=/var/run/xfs.pid
+SERVICE="xfs -daemon"
+
+case "$1" in
+  start)
+    echo -n "Starting X font sever..."
+    daemon $SERVICE
+    echo
+    ;;
+
+  stop)
+    echo -n "Stopping X font server..."
+    killproc xfs
+    echo
+    ;;
+
+  restart)
+    $0 stop
+    $0 start
+    ;;
+
+  reload)
+    echo -n "Reloading X font server configuration..."
+    killproc xfs -HUP
+    ;;
+
+  status)
+    status xfs
+    ;;
+
+  *)
+    echo "Usage: $0 {start|stop|restart|reload|status}"
+    exit 1
+    ;;
+esac
+
+exit 0

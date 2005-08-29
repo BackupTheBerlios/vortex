@@ -1,0 +1,27 @@
+#!/bin/sh
+# $Id: boot,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/boot - system boot (initialization) script.
+#
+# 2003.11.14 Generations Linux <info@softcraft.org>
+##
+###
+
+# Set umask to something reasonable.
+umask 022
+
+# System boot parameters (environment) 
+[ -f /etc/sysconfig/boot ] && . /etc/sysconfig/boot
+
+# See if system needs to be setup. This is ONLY meant to be
+# used for the initial setup after a fresh installation!
+[ -n "$CONFIGURE" ] && $CONFIGURE
+
+# Trap CTRL-C only in this shell so we can interrupt subprocesses.
+trap ":" INT QUIT TSTP
+
+# System initialization.
+[ -x /etc/init.d/sysinit ] && /etc/init.d/sysinit
+
+# </boot>

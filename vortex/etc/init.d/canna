@@ -1,0 +1,27 @@
+#! /bin/sh
+# $Id: canna,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# canna    Start/Stop kanji conversion server.
+#
+# 1997/11/06 Generations Linux <info@softcraft.org>
+##
+###
+
+# See how we were called.
+case "$1" in
+  start)
+        echo "Starting kanji conversion server"
+        rm -f /var/lock/canna/.CANNALOCK
+	/opt/canna/bin/cannaserver
+	;;
+  stop)
+        echo "Shutting down kanji conversion server"
+	/opt/canna/bin/cannakill
+	;;
+  *)
+	echo "Usage: /etc/init.d/canna {start|stop}"
+	exit 1
+esac
+
+exit 0

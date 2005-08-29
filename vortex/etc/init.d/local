@@ -1,0 +1,28 @@
+#!/bin/sh
+# $Id: local,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/local - excute *after* all other init scripts.
+#
+# 2005-07-11 Generations Linux <info@softcraft.org>
+##
+###
+
+case "$1" in
+  start)
+    ## recommendation from MPlayer
+    #modprobe -r genrtc
+    #modprobe rtc && echo 1024 > /proc/sys/dev/rtc/max-user-freq
+
+    ## workaround by bruteforce to bring up network interfaces
+    for CONFIG in /etc/sysconfig/interface/*; do
+      . $CONFIG
+      [ "$PROTOCOL" = "static" ] && etc/init.d/interface `basename $CONFIG` up
+    done
+
+    ## sample activation of powerd with APC-940-0020B ups
+    #[ -f /dev/ups ] && powerd /dev/ups apc-940-0020B
+    ;;
+  stop)
+    ;;
+esac

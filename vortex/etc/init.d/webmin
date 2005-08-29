@@ -1,0 +1,29 @@
+#!/bin/sh
+# $Id: webmin,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# Init file for webmin server daemon
+#
+# 2004-08-30 Generations Linux <info@softcraft.org>
+##
+###
+[ -d /etc/webmin ] || exit 0
+
+# source function library
+[ -f /etc/init.d/functions ] && . /etc/init.d/functions
+
+# pull in sysconfig settings
+[ -f /etc/sysconfig/webmin ] && . /etc/sysconfig/webmin
+
+# See how we were called.
+case "$1" in
+  start|stop)
+	[ -d /etc/usermin ] && /etc/usermin/$1
+	/etc/webmin/$1
+	;;
+  *)
+	echo "Usage: webmin {start|stop}"
+	exit 1
+esac
+
+exit 0

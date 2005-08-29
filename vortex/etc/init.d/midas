@@ -1,0 +1,2 @@
+#!/bin/sh
+touch -t 200202022222 /etc/modules.conf

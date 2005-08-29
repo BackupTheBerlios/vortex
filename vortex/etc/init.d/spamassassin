@@ -1,0 +1,44 @@
+#!/bin/sh
+# $Id: spamassassin,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# spamassassin This script starts and stops the spamd daemon
+#
+# 2004-11-08 Generations Linux <info@softcraft.org>
+##
+###
+. /etc/init.d/functions
+
+# Default spamd configuration; read /etc/sysconfig/spamassassin when available 
+SPAMDOPTIONS="-d -c -m5 -H"
+
+[ -f /etc/sysconfig/spamassassin ] && . /etc/sysconfig/spamassassin
+
+# See how we were called.
+case "$1" in
+  start)
+	# Start daemon.
+	echo -n "Starting spamd..."
+	daemon $NICELEVEL spamd $SPAMDOPTIONS
+        echo
+        [ "$?" -eq 0 ] && touch /var/lock/subsys/spamassassin
+        ;;
+  stop)
+        echo -n "Shutting down spamd..."
+        killproc spamd
+        echo
+        [ "$?" -eq 0 ] && rm -f /var/lock/subsys/spamassassin
+        ;;
+  restart)
+        $0 stop
+        $0 start
+        ;;
+  status)
+	status spamd
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart|status}"
+	exit 1
+esac
+
+exit 0

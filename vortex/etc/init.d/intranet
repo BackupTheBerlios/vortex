@@ -1,0 +1,45 @@
+#!/bin/sh
+# $Id: intranet,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# intranet - networking information services.
+#
+# [] named(8) _must_ be started before setting up NIS
+#
+# 2003-10-24 Generations Linux <info@softcraft.org>
+##
+###
+
+[ -f /etc/init.d/functions ] && . /etc/init.d/functions
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
+
+[ -z $NAMEDCFG ] && NAMEDCFG=/etc/named.conf
+[ -z $YPCONFIG ] && YPCONFIG=/etc/yp.conf
+[ -z $YPPASSWD ] && YPPASSWD="rpc.yppasswdd -e chsh -e chfn -s /etc/shadow"
+
+# See how we were called.
+case "$1" in
+  start)
+	[ -r $NAMEDCFG ] && named -c $NAMEDCFG
+	[ -n $YPSERVER ] && echo "ypserver $YPSERVER" > $YPCONFIG
+
+	if [ -d /var/yp/`domainname` ]; then
+	  [ -x /usr/sbin/ypserv ] && ypserv
+	  [ -n $YPPASSWD ] && $YPPASSWD
+	fi
+	;;
+  stop)
+	if [ -d /var/yp/`domainname` ]; then
+	  [ -n $YPPASSWD ] && killall rpc.yppasswdd
+	  [ -x /usr/sbin/ypserv ] && killall ypserv
+	fi
+
+	[ -f $YPCONFIG ] && mv $YPCONFIG $YPCONFIG-
+	[ -r $NAMEDCFG ] && killall named
+	;;
+  *)
+	echo "Usage: /etc/init.d/intranet {start|stop}"
+	exit 1
+esac
+
+# </intranet>

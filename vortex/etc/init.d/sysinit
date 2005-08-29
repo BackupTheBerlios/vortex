@@ -1,0 +1,128 @@
+#!/bin/sh
+# $Id: sysinit,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/sysinit - run once at boot time
+#
+# Taken in part from Miquel van Smoorenburg's bcheckrc.
+#
+# 2004-11-20 Generations Linux <info@softcraft.com>
+##
+###
+[ -f /etc/sysconfig/boot ] && . /etc/sysconfig/boot
+[ -n "$INSTALLED" ] || exit 0
+
+# Re-run ourselves through initlog.
+if [ -z "$IN_INITLOG" -a -x /sbin/initlog ]; then
+  exec /sbin/initlog $INITLOG_ARGS -r /etc/init.d/sysinit
+fi
+
+# If we're using devfs, start devfsd now - we need the old device names
+[ -e /dev/.devfsd -a -x /sbin/devfsd ] && /sbin/devfsd /dev
+
+# System initialization enviroment and procedures.
+. /etc/init.d/functions
+
+# Distribution release information.
+echo -e $"\t\tWelcome to $INSTALLED"
+
+# Initial networking discovery.
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
+[ -z "$HOSTNAME" -o "$HOSTNAME" = "(none)" ] && HOSTNAME=localhost
+
+action $"Setting the name of this system, $HOSTNAME: " hostname $HOSTNAME
+[ -n "$NISDOMAIN" ] && domainname $NISDOMAIN
+
+# Set the level at which logging of messages is done to the console.
+/bin/dmesg -n $LOGLEVEL
+
+# Mount /proc (done here so volume labels can work with fsck).
+action $"Mounting proc filesystem: " mount -n -t proc /proc /proc
+
+# It maybe necessary to umount /initrd
+if grep -q /initrd /proc/mounts && ! grep -q /initrd/loopfs /proc/mounts ; then
+  [ -e /initrd/dev/.devfsd ] && umount /initrd/dev
+  action $"Unmounting initrd: " umount /initrd
+  blockdev --flushbufs /dev/ram0 >/dev/null 2>&1
+fi
+
+# Configure kernel parameters.
+action $"Configuring kernel parameters: " sysctl -e -p /etc/sysctl.conf
+
+# Set the system clock.
+[ -x /etc/init.d/clock ] && /etc/init.d/clock
+
+# Integrity check of file systems. Always enforced with newer e2fck(8)..
+INTEGRITY=$"System coming up.. checking file systems..."
+initlog -c "fsck -A -C -T -a"
+
+if [ $? -gt 1 ]; then
+  failure "$INTEGRITY"
+  echo
+  echo
+  echo $"*** An error occurred during the file system check."
+  echo $"*** Dropping you to a shell for system repairs."
+  echo
+  mount -n -o remount,rw /
+  > /etc/mtab
+  mount -f -t proc proc /proc
+  mount -f /
+  sync
+  sh
+else
+  passed "$INTEGRITY"
+fi
+
+# Remount the root fileystem read-write.
+action $"Remounting root filesystem read-write: " mount -n -o remount,rw /
+
+# Make sure /etc/mtab will be up to date
+rm -f /etc/mtab~
+> /etc/mtab
+mount -f /
+
+# Mount remaining (non NFS) filesystems
+action $"Mounting local filesystems: " mount -a -t nonfs
+mount -f -t proc proc /proc
+
+# See if more of the device hardware information is available (2.6)
+if grep -q sysfs /proc/filesystems; then
+  [ -d /sys ] || mkdir /sys
+  mount -t sysfs sysfs /sys
+fi
+
+# See if we have USB devices information; and devfs (deprecated in 2.6)
+[ -f /proc/bus/usb/devices ] && mount -f -t usbfs usbfs /proc/bus/usb
+[ -e /dev/.devfsd ] && mount -f -t devfs devfs /dev
+
+# Enable device and files for paging and swapping.
+action $"Activating swap partitions: " swapon -a
+
+# Clear login records
+> /var/run/utmp
+> /var/log/wtmp
+
+# Clean-up /tmp leaving alone quota files.
+( cd /tmp && \
+  rm -rf [a-km-pr-zA-Z]* && \
+  find . ! -name . ! -name lost+found ! -name quota.user ! -name quota.group \
+      -exec rm -rf -- {} \; -type d -prune )
+
+# Initialize console (setfont and keymap).
+[ -f /etc/sysconfig/i18n ] && . /etc/sysconfig/i18n
+[ -n "$SYSFONT" -a -n "$CHARMAP" ] && setfont $SYSFONT -m $CHARMAP
+
+[ -f /etc/sysconfig/keyboard ] && . /etc/sysconfig/keyboard
+[ -n "$KEYTABLE" ] && loadkeys $KEYTABLE || loadkeys -d
+ 
+# Initialize USB and load persistent modules.
+[ -x /etc/init.d/modules ] && /etc/init.d/modules
+
+# We have all of our basic modules loaded and the kernel going,
+# let's dump the syslog ring somewhere so we can find it later.
+[ -n "$BOOTLOG" ] && dmesg -s 131072 > $BOOTLOG
+
+# Allow users login (see: nologin(5))
+rm -f /etc/nologin
+
+# </sysinit>

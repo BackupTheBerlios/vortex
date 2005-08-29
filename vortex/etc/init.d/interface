@@ -1,0 +1,87 @@
+#!/bin/sh
+# $Id: interface,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/interface - network interface configure {up,down,..}
+#
+# 2005-06-10 Generations Linux <info@softcraft.org>
+##
+###
+
+DEVICE=$1
+PROTOCOL=pump
+DHCLIENT="dhcpcd -d -D"
+RESOLVER=/etc/resolv.conf
+debug=$3
+
+[ -f /etc/sysconfig/network ] && . /etc/sysconfig/network
+[ -f /etc/sysconfig/interface/$1 ] && . /etc/sysconfig/interface/$1
+[ -n "$DRIVER" ] && modprobe $DRIVER
+
+# See how we were called.
+case "$2" in
+  up)
+    if `grep -q $DEVICE /proc/net/wireless`; then
+      $debug /etc/init.d/wireless config $DEVICE
+    fi 
+
+    case "$PROTOCOL" in
+      dhcp|dynamic)
+        if [ -z "$OPTIONS" ]; then
+          OPTIONS="-h `hostname`"
+          [ -n "$IPADDR" ] && OPTIONS="$OPTIONS -s $IPADDR"
+        fi
+        $debug $DHCLIENT $OPTIONS $DEVICE
+        ;;
+
+      pump)
+        trap 2 3 11
+	[ -n "$debug" ] && $debug pump -i $DEVICE || \
+        pump -i $DEVICE $OPTIONS >/dev/null 2>&1 &
+        trap "" 2 3 11
+        sleep 1
+        ;;
+
+      static)
+        [ -z "$NETMASK" ] && NETMASK=255.255.255.0
+        [ -z "$BROADCAST" ] && \
+               BROADCAST=`ipcalc --broadcast $IPADDR $NETMASK | cut -d= -f2`
+
+        IPOPTS="netmask $NETMASK broadcast $BROADCAST"
+	[ -n "$debug" ] && $debug ifconfig $DEVICE $IPADDR up $IPOPTS || \
+        ifconfig $DEVICE $IPADDR up $IPOPTS 2>/dev/null
+
+        if [  $? -eq 0 ]; then
+          [ -n "$NETWORK" ] && $debug route add $NETWORK dev $DEVICE > /dev/null 2>&1
+
+          if [ -n "$GATEWAY" ]; then
+            $debug route add default gw $GATEWAY > /dev/null 2>&1
+          fi
+          if [ ! -e $RESOLVER ]; then
+            [ -n "$NAMESERVER" ] || NAMESERVER=$GATEWAY
+            [ -n "$NAMESERVER" ] && echo "nameserver $NAMESERVER" > $RESOLVER
+          fi
+        fi
+        ;;
+    esac
+    ;;
+
+  down)
+    case "$PROTOCOL" in
+      dhcp|dynamic|pump|static)
+        $debug ifconfig $DEVICE down
+        ;;
+    esac
+    ;;
+
+  status)
+	[ -n "$ESSID" ] && $debug iwconfig $DEVICE
+        $debug ifconfig $DEVICE
+    ;;
+
+  *)
+    echo "Usage: /etc/init.d/interface <device> {up|down|status}"
+    ;;
+esac
+
+# </interface>

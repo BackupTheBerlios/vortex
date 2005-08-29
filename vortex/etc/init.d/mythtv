@@ -1,0 +1,56 @@
+#!/bin/sh
+# $Id: mythtv,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# mythtv start/stop/restart/status mythtv backend
+#
+# 2004-12-01 Generations Linux <info@softcraft.org>
+##
+###
+MYTHTV=/opt/mythtv
+[ -d $MYTHTV/bin ] || exit 1
+
+BACKEND=mythbackend
+LOGFILE=/var/log/mythbackend.log
+
+[ -f /etc/init.d/functions ] && . /etc/init.d/functions
+[ -f /etc/sysconfig/mythtv ] && . /etc/sysconfig/mythtv
+
+PID=`ps -ef | grep $BACKEND | grep -v grep | awk '{print $2}'`
+if kill -0 $PID 2>/dev/null; then RUNNING=yes; fi
+
+# See how we were called.
+case "$1" in
+  start)
+	if [ -n "$RUNNING" ]; then
+          status $BACKEND
+        else
+          echo -n "Starting mythtv backend..."
+          daemon $MYTHTV/bin/$BACKEND -d -l $LOGFILE
+          echo
+        fi
+        ;;
+  stop)
+	if [ -z "$RUNNING" ]; then
+          status $BACKEND
+        else
+          echo -n "Shutting down mythtv backend..."
+          killproc $BACKEND 2>/dev/null
+          [ "$?" -eq 0 ] && echo_success || echo_failure
+          echo
+        fi
+        ;;
+  restart)
+        $0 stop
+        $0 start
+        ;;
+  status)
+        status $BACKEND
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac
+
+exit 0
+# </mythtv>

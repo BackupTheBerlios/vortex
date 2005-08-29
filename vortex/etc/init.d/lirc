@@ -1,0 +1,54 @@
+#!/bin/sh
+# $Id: lirc,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/lirc {start,stop,restart,status} Linux Infrared Remote Control
+#
+# 2004-11-26 Generations Linux <info@softcraft.org>
+##
+###
+[ `type -p lircd` -a -f /etc/lircd.conf ] || exit 0
+[ `type -p lircmd` -a -f /etc/lircmd.conf ] && LIRCM=yes
+
+# Load LIRC system configuration, if available
+[ -f /etc/sysconfig/lirc ] && . /etc/sysconfig/lirc
+
+[ -n "$DRIVER" ] && modprobe $DRIVER
+
+# Source function library.
+. /etc/init.d/functions
+
+# See how we were called.
+case "$1" in
+  start)
+	echo -n "Starting Infrared Remote Control... lircd"
+	if [ -n "$LIRCM" ]; then
+	  lircd && lircmd && echo_success || echo_failure
+	else
+	  lircd && echo_success || echo_failure
+	fi
+	echo
+	touch /var/lock/subsys/lirc
+	;;
+  stop)
+	echo -n "Shutting down Infrared Remote Control... lircd"
+	[ -n "$LIRCM" ] && killproc lircmd
+	killproc lircd
+	echo
+	rm -f /var/lock/subsys/lirc
+	;;
+  status)
+	[ -n "$LIRCM" ] && status lircmd
+	status lircd
+	;;
+  restart)
+	$0 stop
+	$0 start
+	;;
+  *)
+	echo "Usage: lirc {start|stop|status|restart}"
+	exit 1
+esac
+
+exit 0
+#</lirc>

@@ -1,0 +1,37 @@
+#!/bin/sh
+# $Id: xdm,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/xdm  start/stop the X display manager
+#
+# 2004-11-26 Generations Linux <info@softcraft.org>
+##
+###
+[ -d /usr/X11R6/bin -a -f /etc/X11/XF86Config ] || exit 1
+
+X11=/usr/X11R6
+GNOME=/usr/gnome
+KDE=/opt/kde
+
+PATH=/bin:/usr/bin:$X11/bin
+[ -d $GNOME/bin ] && PATH=$PATH:$GNOME/bin
+[ -d $KDE/bin ] && PATH=$PATH:$KDE/bin
+
+MANAGER="kdm,v0.4"
+[ -r /etc/sysconfig/desktop ] && . /etc/sysconfig/desktop
+
+if [ `type -p $MANAGER` ]; then
+  XDM=`type -p $MANAGER`
+elif [ -x $GNOME/bin/gdm ]; then
+  XDM=$GNOME/bin/gdm
+elif [ -x $KDE/bin/kdm ]; then
+  XDM=$KDE/bin/kdm
+else
+  XDM=$X11/bin/xdm
+fi
+
+[ "x`pidof xfs`" == x ] && xfs -daemon >/dev/null 2>&1
+[ -f /var/run/gdm.pid ] && rm /var/run/gdm.pid
+[ -f /var/run/xdm.pid ] && rm /var/run/xdm.pid
+
+exec $XDM -nodaemon

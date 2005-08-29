@@ -1,0 +1,113 @@
+#!/bin/sh
+# $Id: xsession,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/xsession - single X Window session wrapper
+#
+# 2003-02-24 Klaus Knopper <knopper@knopper.net>
+# 2004-12-08 Generations Linux <info@softcraft.org>
+##
+###
+
+PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/X11R6/bin:/usr/local/bin:."
+export PATH
+
+umask 022
+
+CRE="[K"
+RED="[1;31m"
+BLUE="[1;34m"
+CYAN="[1;36m"
+NORMAL="[1;39m"
+
+RUNLEVEL="$(runlevel)"
+
+XCONFIG=${XCONFIG:-"/etc/X11/XF86Config"}
+#XOPTION=${XOPTION:-"-noreset -dpi 75 -xf86config $XCONFIG"}
+# Some cards prefer 16 bit, especially when low on mem or not SVGA
+XOPTION=${XOPTION:-"-noreset -dpi 75 -depth 16"}
+
+XSESSION=/etc/X11/xinit/xinitrc
+[ -f $HOME/.xinitrc ] && XSESSION="sh $HOME/.xinitrc"
+[ -x $HOME/.xinitrc ] && XSESSION=$HOME/.xinitrc
+XINIT=${XINIT:-$XSESSION}
+
+XRESET=${XRESET:-"sudo telinit 0"}
+
+[ -f /etc/sysconfig/xserver ] && . /etc/sysconfig/xserver
+[ -f /etc/sysconfig/desktop ] && . /etc/sysconfig/desktop
+
+[ -z "$XSTART" -a -n "$BACKGROUND" ] && XSTART="xsetbg $BACKGROUND"
+[ -n "$XSTART" ] || XSTART="xsetroot -gray"
+
+# See how we were called.
+case "$1" in
+  start)
+    # Don't start X if brltty is running!
+    BPID="$(pidof brltty 2>/dev/null)"
+    [ "$?" = "0" ] && exit 0
+
+    REALMEM="$(cat /proc/meminfo | awk '/MemTotal/{print $2}')"
+    if [ -n "$REALMEM" -a "$REALMEM" -lt 14000 ]; then
+      echo "${BLUE}$0: ${RED}Sorry, You need at least 16 Megs of RAM to start the X-Window system.${NORMAL}"
+      echo "${BLUE}$0: ${RED}Exiting now.${NORMAL}"
+      exit 1
+    fi
+
+    echo ""
+    echo "	${NORMAL}Starting single X-Window session."
+    echo "	Please stand by a few seconds while the optimal configuration"
+    echo "	is being determined."
+    if [ "$RUNLEVEL" = "N 4" ]; then
+      echo ""
+      echo "	After this session terminates, the system will automatically shut down."
+    fi
+    echo ""
+
+    for X in $XSERVER XF86_SVGA
+    do
+      $X $XOPTION :0 2>/dev/null && break
+    done &
+
+    ##
+    # Wait for X-Server startup
+    sleep 2
+    DISPLAY=:0 $XSTART >/dev/null 2>&1
+
+    if [ "$?" != "0" ]; then
+      echo "${RED}ERROR: No suitable X-Server found for your card.${NORMAL}"
+      killall XF86_SVGA >/dev/null 2>&1
+      killall $XSERVER >/dev/null 2>&1
+      exit 1
+    fi
+
+    ##
+    # Start an X session (xinit)
+    DISPLAY=:0 $XINIT >/dev/null 2>&1
+    RC="$?"
+
+    # After xsession exits, end X-Server
+    for i in $ACCEL $X $XSERVER XFree86 XF86_SVGA; do
+      killall -TERM $i 2>/dev/null && break
+    done
+    echo -n "${CRE}${BLUE}X-Window session terminated "
+
+    if [ "$RC" = "0" ]; then
+      echo "without errors.${NORMAL}"
+      [ "$RUNLEVEL" = "N 4" ] && $XRESET
+    else
+      echo "with errors.${NORMAL}"
+      echo "${RED}Please check $XCONFIG and retry ${CYAN}'$0 start'${RED}.${NORMAL}"
+    fi
+    ;;
+  stop)
+    for i in $XSERVER XF86_SVGA; do
+      killall -TERM $i 2>/dev/null && echo "${BLUE}X-Server shut down.${NORMAL}" && break
+    done
+    ;;
+  *)
+    echo "Usage: xsession {start|stop}"
+    exit 1
+esac
+
+exit 0

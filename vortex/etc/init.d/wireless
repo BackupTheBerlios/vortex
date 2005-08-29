@@ -1,0 +1,46 @@
+#!/bin/sh
+# $Id: wireless,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/wireless - wireless network interface {config,status} <device>
+#
+# 2004-10-21 Generations Linux <info@softcraft.org>
+##
+###
+
+IWCONFIG=/sbin/iwconfig
+DEVICE=$2
+debug=$3
+
+[ -f /etc/sysconfig/wireless ] && . /etc/sysconfig/wireless
+[ -f /etc/sysconfig/interface/$2 ] && . /etc/sysconfig/interface/$2
+
+# See how we were called.
+case "$1" in
+  config)
+    [ -n "$ESSID" ]   && $IWCONFIG $DEVICE essid "$ESSID" >/dev/null 2>&1
+    [ -n "$INFO" ]    && $IWCONFIG $DEVICE nick "$INFO" >/dev/null 2>&1
+    [ -n "$NWID" ]    && $IWCONFIG $DEVICE nwid "$NWID" >/dev/null 2>&1
+    [ -n "$FREQ" ]    && $IWCONFIG $DEVICE freq "$FREQ" >/dev/null 2>&1
+    [ -n "$CHANNEL" ] && $IWCONFIG $DEVICE channel "$CHANNEL" >/dev/null 2>&1
+    [ -n "$SENS" ]    && $IWCONFIG $DEVICE sens "$SENS" >/dev/null 2>&1
+    [ -n "$MODE" ]    && $IWCONFIG $DEVICE mode "$MODE" >/dev/null 2>&1
+    [ -n "$RATE" ]    && $IWCONFIG $DEVICE rate "$RATE" >/dev/null 2>&1
+    [ -n "$RTS" ]     && $IWCONFIG $DEVICE rts "$RTS" >/dev/null 2>&1
+    [ -n "$FRAG" ]    && $IWCONFIG $DEVICE frag "$FRAG" >/dev/null 2>&1
+    [ -n "$KEY" ]     && $IWCONFIG $DEVICE key "$KEY" >/dev/null 2>&1
+    [ -n "$POWER" ]   && $IWCONFIG $DEVICE power "$POWER" >/dev/null 2>&1
+    [ -n "$TXPOWER" ] && $IWCONFIG $DEVICE txpower "$TXPOWER" >/dev/null 2>&1
+    [ -n "$RETRY" ]   && $IWCONFIG $DEVICE retry "$RETRY" >/dev/null 2>&1
+    ;;
+
+  status)
+    $debug $IWCONFIG $DEVICE
+    ;;
+
+  *)
+    echo "Usage: /etc/init.d/wireless {config|status} <device>"
+    ;;
+esac
+
+# </wireless>

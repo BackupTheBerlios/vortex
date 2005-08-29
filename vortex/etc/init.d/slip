@@ -1,0 +1,38 @@
+#!/bin/sh
+# $Id: slip,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# slip       Serial line IP start/stop services.
+#
+# 1993/10/26 Miquel van Smoorenburg <miquels@drinkel.nl.mugnet.org>, Riku Meskanen <mesrik@jyu.fi>
+# 1997/11/06 Generations Linux <info@softcraft.org>
+##
+###
+
+# See how we were called.
+case "$1" in
+  start)
+	echo "Initializing SLIP service:"
+	hostname=`/bin/hostname`
+
+        if [ -f /etc/dip.conf ]; then
+		dip /etc/dip.conf
+	fi
+        echo
+	;;
+  stop)
+	# Stop SLIP service.
+	echo "Shutting down SLIP service:"
+	if [ -z "`pidof dip`" ]; then
+             echo "SLIP already down" 
+	else
+	     dip -k
+        fi
+	echo 
+	;;
+  *)
+	echo "Usage: /etc/init.d/slip {start|stop}"
+	exit 1
+esac
+
+exit 0

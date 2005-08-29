@@ -1,0 +1,34 @@
+#!/bin/sh
+# $Id: xntp3,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/xntp start/stop/restart/status xntp daemon
+#
+# 2004-11-08 Generations Linux <info@softcraft.org>
+##
+###
+
+test -f /usr/sbin/xntpd || exit 0
+. /etc/init.d/functions
+
+case "$1" in
+start)
+  #ntpdate
+  daemon /usr/sbin/xntpd
+  ;;
+stop)
+  killproc xntpd
+  ;;
+restart)
+  $0 stop
+  $0 start
+  ;;
+status)
+  status xntp
+  ;;
+*)
+  echo "Usage: /etc/init.d/xntp3 {start|stop|restart|force-reload}"
+  exit 1
+esac
+
+exit 0

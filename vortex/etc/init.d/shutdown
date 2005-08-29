@@ -1,0 +1,63 @@
+#!/bin/sh
+# $Id: shutdown,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/shutdown - execute for runlevel 0 (halt) or runlevel 6 (reboot).
+#
+# 1998.05.19 Miquel van Smoorenburg <miquels@drinkel.nl.mugnet.org>
+# 2003.12.30 Generations Linux <info@softcraft.org>
+##
+###
+
+export PATH;PATH=/sbin:/bin:/usr/bin:/usr/sbin
+[ -f /etc/sysconfig/shutdown ] && . /etc/sysconfig/shutdown
+
+##
+# We can be called directly as /etc/init.d/shutdown [{halt,reboot}]
+# or indirectly as a symbolic link from a /etc/rc*.d directory.
+action=$0
+case "$action" in *shutdown) [ -n "$1" ] && action=$1;; esac
+
+case "$action" in
+  *halt|*shutdown)
+    message=$"Halting system..."
+    [ -n "$HALT" ] && command=$HALT || command="halt -d -f -i -p"
+    ;;
+  *reboot)
+    message=$"Please stand by while rebooting the system..."
+    [ -n "$REBOOT" ] && command=$REBOOT || command="reboot -d -f -i"
+    ;;
+  *)
+    echo $"usage: [$0] {halt,reboot}"
+    exit 1
+   ;;
+esac
+
+# Disable kernel messages
+echo "0" > /proc/sys/kernel/printk
+
+# Send all processes the TERM signal, wait and the send KILL signal.
+killall5 -15 && sleep 5
+killall5 -9 && sleep 2
+
+# Unmount network filesystems first before shutting down network
+NETMOUNTS="$(awk '{if($1~/:/){print $2}}' /proc/mounts 2>/dev/null)"
+[ -n "$NETMOUNTS" ] && umount -t nfs -arf 2>/dev/null
+
+# Turn off swap, and quotas.
+SWAPS=`awk '! /^Filename/ { print $1 }' /proc/swaps`
+[ -n "$SWAPS" ] && swapoff $SWAPS
+
+[ -x /sbin/quotaoff ] && quotaoff -aug
+
+# Write to wtmp file before unmounting filesystems.
+halt -w
+
+# Unmount all remaining filesystems.
+umount -arf 2>/dev/null
+
+# Remount root read-only to complete the shutdown.
+mount -o remount,ro / 2>/dev/null
+
+echo $message
+exec $command

@@ -1,0 +1,72 @@
+#!/bin/sh
+# $Id: sendmail,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# sendmail - This file is responsible for starting/stopping SMTP services.
+#
+# 1993/10/26 Miquel van Smoorenburg <miquels@drinkel.nl.mugnet.org>
+# 2004/11/07 Generations Linux <info@softcraft.org>
+##
+###
+[ -e /etc/mail/sendmail.cf ] || exit 1
+
+[ -n "$OPTIONS" ] || OPTIONS="-bd -q10"
+[ -f /etc/sysconfig/sendmail ] && . /etc/sysconfig/sendmail
+
+PIDFILE=${PIDFILE:-/var/run/sendmail.pid}
+[ -r ${PIDFILE} ] && PID=`head -1 ${PIDFILE}`
+[ "x$PID" != "x" ] && kill -0 $PID 2>/dev/null && RUNNING=yes
+. /etc/init.d/functions
+
+# See how we were called.
+case "$1" in
+  start)
+	if [ -n "$RUNNING" ]; then
+	  status sendmail
+        else
+	  echo -n "Starting sendmail.."
+	  /usr/sbin/sendmail ${OPTIONS}
+
+          if [ "$?" -eq 0 ]; then
+	    echo_success
+          else
+	    echo_failure
+          fi
+          echo
+        fi
+	;;
+
+  stop)
+	if [ -z "$RUNNING" ]; then
+	  status sendmail
+        else
+	  echo -n "Shutting down sendmail.."
+	  kill ${PID}
+
+          if [ "$?" -eq 0 ]; then
+	    echo_success
+          else
+	    echo_failure
+          fi
+          echo
+	  rm -f ${PIDFILE}
+	fi
+	;;
+
+  restart)
+	$0 stop
+        $0 start
+	;;
+
+  reload)
+	[ -r ${PIDFILE} ] && kill -HUP ${PID}
+	;;
+  status)
+	status sendmail
+	;;
+  *)
+	echo "Usage: /etc/init.d/sendmail {start|stop|restart|reload|status}"
+	exit 1
+esac
+
+exit 0

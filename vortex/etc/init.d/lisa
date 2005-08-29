@@ -1,0 +1,94 @@
+#!/bin/sh
+# $Id: lisa,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/lisa - start/stop Lan Information Server (LISa)
+#
+# Inspired by lisarc.sh (2004-03-12) Gasper Zejn <mk-klavz@owca.info>
+# 2004-10-30 Generations Linux <info@softcraft.org>
+##
+###
+PROGRAM=lisa
+[ -x `type -p $PROGRAM` ] || exit 0
+
+SERVICE="Lan Information Server"
+CONFILE=/etc/lisarc
+
+# create configuration file
+mkconfile() {
+  IFCONFIG=`type -p ifconfig`
+
+  ##
+  # 10.x.x.x/8
+  # for loop if there are multiple network cards with similar addresses
+  for NET in `$IFCONFIG |grep addr:10. | awk '{ split($0,a,":"); print a[2],a[3],a[4] }' | awk '{ split($0,b," "); printf "%s/%s\n",b[3],b[5] }'`
+  do
+    if [ -z $NETWORKS ]; then
+      NETWORKS=$NET
+    else
+      NETWORKS=${NETWORKS}\;${NET}
+    fi
+  done
+
+  # 192.168.x.x/16
+  for NET in `$IFCONFIG |grep addr:192.168. | awk '{ split($0,a,":"); print a[2],a[3],a[4] }' | awk '{split($0,b," "); printf "%s/%s\n", b[3],b[5]}'`
+  do
+    if [ -z $NETWORKS ]; then
+      NETWORKS=$NET
+     else
+      NETWORKS=${NETWORKS}\;${NET}
+    fi
+  done
+
+  # 172.16x.x.x/12
+  for NET in `$IFCONFIG |grep addr:172. | awk '{ split($0,a,":"); print a[2],a[3],a[4] }' | awk ' {split($0,b," "); printf "%s/%s\n", b[3],b[5]}'`
+  do
+    RANGE=`echo $NET | awk '{ split($0,a,"."); print a[2] }'`
+    if [ -n RANGE ]; then
+      if [ $RANGE -le 32 ]; then
+        if [ $RANGE -ge 16 ]; then
+          if [ -z $NETWORKS ]; then
+            NETWORKS=$NET
+          else
+            NETWORKS=${NETWORKS}\;${NET}
+          fi
+        fi
+      fi
+    fi
+  done
+
+  echo SecondWait = -1 >> $CONFILE   #ping only once
+  echo SearchUsingNmblookup = 1 >> $CONFILE
+  echo DeliverUnnamedHosts = 1 >> $CONFILE
+  echo FirstWait = 100 >> $CONFILE   #wait 1 second for reply
+  echo MaxPingsAtOnce = 256 >> $CONFILE
+  echo UpdatePeriod = 300 >> $CONFILE
+  echo -e "PingAddresses = $NETWORKS" >> $CONFILE
+  echo -e "AllowedAddresses = $NETWORKS" >> $CONFILE
+  echo -e "BroadcastNetwork = $NETWORKS" >> $CONFILE
+  echo PingNames = >> $CONFILE
+}
+
+# System wide library functions
+. /etc/init.d/functions
+
+# See how we were called.
+case "$1" in
+  start)
+	echo -n "Starting $SERVICE... "
+        [ -e $CONFILE ] || mkconfile
+	daemon $PROGRAM
+	echo
+	;;
+  stop)
+	echo -n "Shutting down $SERVICE... "
+	killproc $PROGRAM
+	echo
+	;;
+  status)
+	status $PROGRAM
+	;;
+  *)
+	echo "Usage: $PROGRAM {start|stop|status}"
+	exit 1
+esac

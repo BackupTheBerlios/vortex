@@ -1,0 +1,56 @@
+#!/bin/sh
+# $Id: irda,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# /etc/init.d/irda  start/stop IrDA support
+#
+# 2004-11-08 Generations Linux <info@softcraft.org>
+##
+###
+
+# Check that irda-utils are installed.
+[ -f /usr/sbin/irattach ] || exit 0
+
+# Source IrDA networking configuration.
+[ -r /etc/sysconfig/irda] && . /etc/sysconfig/irda
+
+# Source function library.
+. /etc/init.d/functions
+
+ARGS=
+if [ $DONGLE ]; then
+	ARGS="$ARGS -d $DONGLE"
+fi
+if [ "$DISCOVERY" = "yes" ];then
+	ARGS="$ARGS -s"
+fi
+
+# See how we were called.
+case "$1" in
+  start)
+        # Attach irda device 
+        echo -n "Starting IrDA..."
+        daemon /usr/sbin/irattach ${DEVICE} ${ARGS}
+	touch /var/lock/subsys/irda
+        echo
+        ;;
+  stop)
+        # Stop service.
+        echo -n "Shutting down IrDA..."
+	killproc irattach
+	rm -f /var/lock/subsys/irda
+        echo
+        ;;
+  restart|reload)
+	$0 stop
+	$0 start
+	;;
+  status)
+	status irattach
+	;;
+  *)
+        echo "Usage: irda {start|stop|restart|reload|status}"
+        exit 1
+esac
+
+exit 0

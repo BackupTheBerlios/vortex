@@ -1,0 +1,44 @@
+#!/bin/sh
+# $Id: nfs,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+###
+##
+# nfs        This shell script takes care of starting and stopping
+#            the NFS services. Later we might add NIS too.
+#
+# 1993-10-26 Miquel van Smoorenburg <miquels@drinkel.nl.mugnet.org>
+# 2004-11-26 Generations Linux <info@softcraft.org>
+##
+###
+. /etc/init.d/functions
+
+# See how we were called.
+case "$1" in
+  start)
+	# Start daemons.
+	echo -n "Starting NFS services..."
+	rpc.mountd && echo -n " mountd"
+	rpc.nfsd && echo -n " nfsd"
+	#[ -x /usr/sbin/rpc.pcnfsd ] && rpc.pcnfsd && echo -n " pcnfsd"
+	echo "."
+	;;
+  stop)
+	echo -n "Shutting down NFS services..."
+	#[ -x /usr/sbin/rpc.pcnfsd ] && killall rpc.pcnfsd
+	killall rpc.nfsd && echo -n " nfsd"
+	killall rpc.mountd && echo -n " mountd"
+	echo "."
+	;;
+  restart)
+        $0 stop
+        $0 start
+	;;
+  status)
+        status rpc.nfsd
+        status rpc.mountd
+	;;
+  *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit 0
