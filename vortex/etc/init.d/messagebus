@@ -1,0 +1,81 @@
+#!/bin/sh
+# $Id: messagebus,v 1.1 2005/09/05 17:11:46 softcraft Exp $
+###
+##
+# messagebus:   The D-BUS systemwide message bus
+#
+# chkconfig: 345 97 03
+# description: This is a daemon which broadcasts notifications of system events
+#              and other messages. See http://www.freedesktop.org/software/dbus
+#
+# 2005-08-05 Generations Linux <info@softcraft.org>
+##
+###
+
+# processname: dbus-daemon
+# pidfile: /var/run/dbus/pid
+
+# Sanity checks.
+[ -x /usr/bin/dbus-daemon ] || exit 0
+
+# Source function library.
+. /etc/init.d/functions
+
+# so we can rearrange this easily
+processname=dbus-daemon
+servicename=messagebus
+
+RETVAL=0
+
+start() {
+    echo -n $"Starting system message bus: "
+    daemon --check $servicename $processname --system
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch /var/lock/subsys/$servicename
+}
+
+stop() {
+    echo -n $"Stopping system message bus: "
+
+    ## we don't want to kill all the per-user $processname, we want
+    ## to use the pid file *only*; because we use the fake nonexistent 
+    ## program name "$servicename" that should be safe-ish
+    killproc $servicename -TERM
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$servicename
+    rm -f /var/run/dbus/pid
+}
+
+# See how we were called.
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $processname
+        RETVAL=$?
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    condrestart)
+        if [ -f /var/lock/subsys/$servicename ]; then
+            stop
+            start
+        fi
+        ;;
+    reload)
+        echo "Message bus can't reload its configuration, you have to restart it"
+        RETVAL=$?
+        ;;
+    *)
+        echo $"Usage: $0 {start|stop|status|restart|condrestart|reload}"
+        ;;
+esac
+exit $RETVAL
