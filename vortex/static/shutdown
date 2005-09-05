@@ -1,0 +1,42 @@
+#!/static/bin/sh
+# $Id: shutdown,v 1.1 2005/09/05 18:31:45 softcraft Exp $
+###
+##
+# /static/shutdown - initial ramdisk (initrd) shutdown script
+#
+# 2005-04-15 Generations Linux <info@softcraft.org>
+##
+###
+
+[ -z "$STATIC" ] && STATIC=/static
+PATH=$STATIC/sbin:$STATIC/bin
+
+for opt in `cat /proc/cmdline`; do
+  case $opt in
+    eject)
+      AUTOEJECT=yes
+      ;;
+  esac
+done
+
+# Turn on auto-eject feature of cdrom (linux kernel) if $AUTOEJECT
+if [ -n "$AUTOEJECT" ]; then
+  echo "1" > /proc/sys/dev/cdrom/autoeject
+  echo "0" > /proc/sys/dev/cdrom/lock
+fi
+
+# After umount /vortex and media check for media eject
+umount /vortex
+umount /mnt/linux
+umount /mnt/media
+
+if [ -n "$AUTOEJECT" ]; then
+  echo -n "System shutdown [media eject].. Press ENTER to continue. "
+  read line
+fi
+
+# Form shutdown {halt | reboot} command
+command="halt -n -i -f -p"
+[ "$1" = "reboot" ] && command="reboot -n -i -f"
+
+exec $STATIC/sbin/$command
