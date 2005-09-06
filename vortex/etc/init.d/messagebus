@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: messagebus,v 1.1 2005/09/05 17:11:46 softcraft Exp $
+# $Id: messagebus,v 1.2 2005/09/06 04:44:10 softcraft Exp $
 ###
 ##
 # messagebus:   The D-BUS systemwide message bus
@@ -23,7 +23,7 @@
 
 # so we can rearrange this easily
 processname=dbus-daemon
-servicename=messagebus
+servicename=dbus-daemon
 
 RETVAL=0
 

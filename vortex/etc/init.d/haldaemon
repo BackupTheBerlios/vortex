@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: haldaemon,v 1.1 2005/09/05 17:11:46 softcraft Exp $
+# $Id: haldaemon,v 1.2 2005/09/06 04:44:10 softcraft Exp $
 ###
 ##
 # haldaemon:   HAL daemon
@@ -24,7 +24,7 @@
 
 # so we can rearrange this easily
 processname=hald
-servicename=haldaemon
+servicename=hald
 
 RETVAL=0
 
