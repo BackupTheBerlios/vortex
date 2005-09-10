@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: modules,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: modules,v 1.2 2005/09/10 02:37:17 softcraft Exp $
 ###
 ##
 # modules - This file is executed by init scripts to explicitly
@@ -12,11 +12,29 @@
 # Source function library.
 . /etc/init.d/functions
 
+# Advanced Configuration and Power Interface
+[ -f /etc/sysconfig/boot ] && . /etc/sysconfig/boot
+
+if [ -n "$ACPI" ]; then
+  echo -n "Loading ACPI modules..."
+
+  for MODULE in $ACPI; do
+    modprobe $MODULE >/dev/null 2>&1
+    echo -n " $MODULE"
+  done
+
+  echo_success
+  echo
+fi
+
 # Configure Plug and Play boards.
 if ! grep -iq nopnp /proc/cmdline >/dev/null 2>&1 ; then
   [ -x /sbin/isapnp -a -f /etc/isapnp.conf -a ! -f /proc/isapnp ] && \
   action $"Setting up ISA PNP devices: " /sbin/isapnp /etc/isapnp.conf
 fi
+
+# Start hotpluggable subsystems (coldplugging).
+[ -x /etc/init.d/hotplug ] && /etc/init.d/hotplug start
 
 # Activate SCSI emulation when specified.
 if grep -q "ide-scsi" /proc/cmdline ; then
@@ -28,9 +46,6 @@ fi
 [ -f /etc/sysconfig/sound ] && . /etc/sysconfig/sound
 [ -n "$DRIVER" -a "$DRIVER" != "unknown" ] && modprobe $DRIVER
 [ -n "$INIT" ] && $INIT 2> /dev/null
-
-# Start hotpluggable subsystems (coldplugging).
-[ -x /etc/init.d/hotplug ] && /etc/init.d/hotplug start
 
 # Additional modules...
 [ -f /etc/sysconfig/modules ] && \

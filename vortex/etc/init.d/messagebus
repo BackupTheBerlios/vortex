@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: messagebus,v 1.2 2005/09/06 04:44:10 softcraft Exp $
+# $Id: messagebus,v 1.3 2005/09/10 02:37:17 softcraft Exp $
 ###
 ##
 # messagebus:   The D-BUS systemwide message bus
@@ -17,6 +17,7 @@
 
 # Sanity checks.
 [ -x /usr/bin/dbus-daemon ] || exit 0
+[ -d /var/run/dbus ] || mkdir /var/run/dbus
 
 # Source function library.
 . /etc/init.d/functions
