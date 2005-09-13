@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: messagebus,v 1.3 2005/09/10 02:37:17 softcraft Exp $
+# $Id: messagebus,v 1.4 2005/09/13 15:38:48 softcraft Exp $
 ###
 ##
 # messagebus:   The D-BUS systemwide message bus
@@ -29,6 +29,7 @@ servicename=dbus-daemon
 RETVAL=0
 
 start() {
+    rm -f /var/run/dbus/pid
     echo -n $"Starting system message bus: "
     daemon --check $servicename $processname --system
     RETVAL=$?

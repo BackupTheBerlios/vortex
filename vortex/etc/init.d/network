@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: network,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: network,v 1.2 2005/09/13 15:38:48 softcraft Exp $
 ###
 ##
 # /etc/init.d/network - Start/stop all the basic networking services.
@@ -31,11 +31,15 @@ case "$1" in
         # First see if we have any routes set up to the rest of the world.
 	netstat -rn | egrep -s -v -q "Kernel routing|Destination"
 
+        if [ -n "$NTPSERVER" -a -x /usr/bin/ntpdate ]; then
+          echo -n "Setting date and time from $NTPSERVER"
+          /usr/bin/ntpdate -b -s $NTPSERVER && echo_success
+          echo
+        fi
 	if [ $? = 0 -a -f /etc/sysconfig/services ]; then
 	  for service in `grep -v ^# /etc/sysconfig/services`; do
 	    [ -x /etc/init.d/$service ] && /etc/init.d/$service start
 	  done
-          [ -n "$NTPSERVER" -a -x /usr/bin/ntpdate ] && /usr/bin/ntpdate -b -s $NTPSERVER
 	fi
 	echo
 	;;

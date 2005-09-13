@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: sysinit,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: sysinit,v 1.2 2005/09/13 15:38:48 softcraft Exp $
 ###
 ##
 # /etc/init.d/sysinit - run once at boot time
@@ -16,9 +16,6 @@
 if [ -z "$IN_INITLOG" -a -x /sbin/initlog ]; then
   exec /sbin/initlog $INITLOG_ARGS -r /etc/init.d/sysinit
 fi
-
-# If we're using devfs, start devfsd now - we need the old device names
-[ -e /dev/.devfsd -a -x /sbin/devfsd ] && /sbin/devfsd /dev
 
 # System initialization enviroment and procedures.
 . /etc/init.d/functions
@@ -38,13 +35,6 @@ action $"Setting the name of this system, $HOSTNAME: " hostname $HOSTNAME
 
 # Mount /proc (done here so volume labels can work with fsck).
 action $"Mounting proc filesystem: " mount -n -t proc /proc /proc
-
-# It maybe necessary to umount /initrd
-if grep -q /initrd /proc/mounts && ! grep -q /initrd/loopfs /proc/mounts ; then
-  [ -e /initrd/dev/.devfsd ] && umount /initrd/dev
-  action $"Unmounting initrd: " umount /initrd
-  blockdev --flushbufs /dev/ram0 >/dev/null 2>&1
-fi
 
 # Configure kernel parameters.
 action $"Configuring kernel parameters: " sysctl -e -p /etc/sysctl.conf
@@ -91,9 +81,8 @@ if grep -q sysfs /proc/filesystems; then
   mount -t sysfs sysfs /sys
 fi
 
-# See if we have USB devices information; and devfs (deprecated in 2.6)
+# See if we have USB devices information
 [ -f /proc/bus/usb/devices ] && mount -f -t usbfs usbfs /proc/bus/usb
-[ -e /dev/.devfsd ] && mount -f -t devfs devfs /dev
 
 # Enable device and files for paging and swapping.
 action $"Activating swap partitions: " swapon -a

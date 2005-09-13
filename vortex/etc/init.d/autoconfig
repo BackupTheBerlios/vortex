@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autoconfig,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: autoconfig,v 1.2 2005/09/13 15:38:48 softcraft Exp $
 ###
 ##
 # /etc/init.d/autoconfig - basic system configuration and hardware setup
@@ -487,29 +487,29 @@ elif modprobe pcmcia_core >/dev/null 2>&1; then
 fi
 
 # USB enable
-if checkbootparam "nousb"; then
-  echo " Skipping USB detection as requested on boot commandline."
-else
+#if checkbootparam "nousb"; then
+#  echo " Skipping USB detection as requested on boot commandline."
+#else
   # We now try to load USB Host Controller Driver(s)
-  FOUNDUSB=""
-  for u in ehci-hcd ohci-hcd uhci-hcd; do modprobe "$u" >/dev/null 2>&1 && FOUNDUSB="yes"; done
-  if [ -n "$FOUNDUSB" ]; then
-    echo " USB found, managed by ${WHITE}hotplug${NORMAL}."
-    [ -x /etc/hotplug/usb.rc ] && /etc/hotplug/usb.rc start >/dev/null 2>&1
-  fi
-fi
+#  FOUNDUSB=""
+#  for u in ehci-hcd ohci-hcd uhci-hcd; do modprobe "$u" >/dev/null 2>&1 && FOUNDUSB="yes"; done
+#  if [ -n "$FOUNDUSB" ]; then
+#    echo " USB found, managed by ${WHITE}hotplug${NORMAL}."
+#    [ -x /etc/hotplug/usb.rc ] && /etc/hotplug/usb.rc start >/dev/null 2>&1
+#  fi
+#fi
 
 # Firewire enable
-if checkbootparam "nofirewire"; then
-  echo " Skipping Firewire detection as requested on boot commandline."
-else
+#if checkbootparam "nofirewire"; then
+#  echo " Skipping Firewire detection as requested on boot commandline."
+#else
   # We now try to load the firewire module
-  FOUNDFIREWIRE=""
-  modprobe ohci1394 >/dev/null 2>&1 && FOUNDFIREWIRE="yes"
-  if [ -n "$FOUNDFIREWIRE" ]; then
-    echo " Firewire found, managed by ${WHITE}hotplug${NORMAL}."
-  fi
-fi
+#  FOUNDFIREWIRE=""
+#  modprobe ohci1394 >/dev/null 2>&1 && FOUNDFIREWIRE="yes"
+#  if [ -n "$FOUNDFIREWIRE" ]; then
+#    echo " Firewire found, managed by ${WHITE}hotplug${NORMAL}."
+#  fi
+#fi
 
 # Search & configure supported hardware
 if ! checkbootparam "nohwsetup"; then
@@ -608,7 +608,7 @@ else
   for DEVICE in $NETDEVICES
   do
     if [ "$DEVICE" = "eth0" -a -n "$ipaddr" -a -z "$confile" ]; then
-      echo -n " Network device ${WHITE}$DEVICE${NORMAL} detected, static IP $ipaddr"
+      echo " Network device ${WHITE}$DEVICE${NORMAL} detected, static IP $ipaddr"
       confile="/etc/sysconfig/interface/$DEVICE"
 
       echo "PROTOCOL=\"static\"" >> $confile
