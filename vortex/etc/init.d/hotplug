@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: hotplug,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: hotplug,v 1.2 2005/09/14 00:56:02 softcraft Exp $
 ###
 ##
 # hotplug This scripts starts hotpluggable subsystems.
@@ -21,22 +21,40 @@
 [ -f /etc/init.d/functions ] && . /etc/init.d/functions
 
 case "$1" in
-    start|stop|restart|status)
-	for SUB in $HOTPLUG
-	do
-	  [ -x /etc/hotplug/$SUB.rc ] && /etc/hotplug/$SUB.rc $1
-	done
+  start)
+    echo -n "Activating hotplug agents..."
 
-	if [ "$1" == "start" ]; then
-	  touch /var/lock/subsys/hotplug
-        elif [ "$1" == "stop" ]; then
-          rm -f /var/lock/subsys/hotplug
-	fi
-        ;;
-    *)
-	echo $"Usage: $0 {start|stop|restart|status}"
-	exit 3
-	;;
+    for SUB in $HOTPLUG; do
+      echo -n " $SUB"
+      [ -x /etc/hotplug/$SUB.rc ] && /etc/hotplug/$SUB.rc start
+    done
+    touch /var/lock/subsys/hotplug
+    echo_success
+    echo
+    ;;
+
+  stop)
+    for SUB in $HOTPLUG; do
+      [ -x /etc/hotplug/$SUB.rc ] && /etc/hotplug/$SUB.rc stop
+    done
+    rm -f /var/lock/subsys/hotplug
+    ;;
+
+  restart)
+    $0 stop
+    $0 start
+    ;;
+
+  status)
+    for SUB in $HOTPLUG; do
+      [ -x /etc/hotplug/$SUB.rc ] && /etc/hotplug/$SUB.rc status
+    done
+    ;;
+
+  *)
+    echo $"Usage: $0 {start|stop|restart|status}"
+    exit 3
+    ;;
 esac
 
 # </hotplug>

@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: local,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: local,v 1.2 2005/09/14 00:56:03 softcraft Exp $
 ###
 ##
 # /etc/init.d/local - excute *after* all other init scripts.
@@ -14,7 +14,7 @@ case "$1" in
     #modprobe -r genrtc
     #modprobe rtc && echo 1024 > /proc/sys/dev/rtc/max-user-freq
 
-    ## workaround by bruteforce to bring up network interfaces
+    ## [workaround] bruteforce bring up network interfaces
     for CONFIG in /etc/sysconfig/interface/*; do
       . $CONFIG
       [ "$PROTOCOL" = "static" ] && etc/init.d/interface `basename $CONFIG` up
