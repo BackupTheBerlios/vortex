@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: level,v 1.1 2005/08/29 01:21:07 softcraft Exp $
+# $Id: level,v 1.2 2005/09/16 06:47:30 softcraft Exp $
 ###
 ##
 # /etc/init.d/level - start/stop services when the runlevel changes.
@@ -57,6 +57,9 @@ if [ $runlevel -eq 0 -o $runlevel -eq 6 ]; then
     exec /etc/init.d/shutdown $mode
   fi
 fi
+
+# special handling for previous == 4
+[ $previous -eq 4 ] && killall XFree86
 
 # See if there an rc directory for this new runlevel.
 if [ -d /etc/rc$runlevel.d ]; then

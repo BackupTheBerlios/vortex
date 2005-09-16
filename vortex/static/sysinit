@@ -1,5 +1,5 @@
 #!/static/bin/sh
-# $Id: sysinit,v 1.1 2005/09/05 18:31:45 softcraft Exp $
+# $Id: sysinit,v 1.2 2005/09/16 06:48:11 softcraft Exp $
 ###
 ##
 # /static/sysinit -- initial ramdisk (initrd) startup script
@@ -138,10 +138,13 @@ if test -n "$generations" -a -f $generations/linux; then
     mount -t tmpfs -o size=$RAMSIZE /dev/shm /stand
     mount -t unionfs -o dirs=/stand:$STAGE none /vortex
 
-    # All PATHs should now resolve to the unionFS mounted on /vortex 
+    # All PATHs should now resolve to the mounted /vortex 
     $STATIC/bin/rm -f /lib ; $STATIC/bin/ln -s /vortex/lib /lib
     PATH="/sbin:/bin:/usr/sbin:/usr/bin:."
+
+    # Rehash program path and set host name
     hash -r
+    hostname linux
 
     # Ready to give control to the init process (or shell.)
     cat /vortex/etc/ld.so.cache > /etc/ld.so.cache
