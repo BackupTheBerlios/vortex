@@ -1,5 +1,5 @@
 #!/bin/sh
-# $Id: autoconfig,v 1.2 2005/09/13 15:38:48 softcraft Exp $
+# $Id: autoconfig,v 1.3 2005/09/17 02:17:59 softcraft Exp $
 ###
 ##
 # /etc/init.d/autoconfig - basic system configuration and hardware setup
@@ -787,7 +787,20 @@ FIREWALL="$(getbootparam firewall 2>/dev/null)"
 if grep -q mysql $SYSERVICES; then cp -a /vortex/var/db/mysql /var/db; fi
 if grep -q postgres $SYSERVICES; then cp -a /vortex/var/db/postgres /var/db; fi
 
-# Re-enable signals
+# newly installed configuration
+BOOTCONFIG=/etc/sysconfig/boot
+
+[ -f $BOOTCONFIG ] && . $BOOTCONFIG
+#
+# set hostname, localtime, root password, ...
+#
+if [ -n "$CONFIGURE" ]; then
+  grep -v CONFIGURE $BOOTCONFIG > $BOOTCONFIG.new
+  mv $BOOTCONFIG $BOOTCONFIG.old
+  mv $BOOTCONFIG.new $BOOTCONFIG
+fi
+
+# re-enable signals
 echo "6" > /proc/sys/kernel/printk
 trap 2 3 11
 
